@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Code Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='coding-bg.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            background: rgba(0, 0, 0, 0.6);
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+        button:hover {
+            transform: scale(1.1);
+            background: #ff9800;
+            color: white;
+        }
+        button:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <h1>Online Code Editor</h1>
+    <select id="language">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="cpp">C++</option>
+    </select>
+    <textarea id="code" name="code"></textarea>
+    <br>
+    <button onclick="runCode()">Run</button>
+    <button onclick="saveCode()">Save</button>
+    <button onclick="loadCode()">Load</button>
+    <pre id="output"></pre>
+
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            mode: "python",
+            theme: "monokai"
+        });
+
+        document.getElementById("language").addEventListener("change", function() {
+            var mode = this.value === "javascript" ? "javascript" : this.value === "cpp" ? "text/x-c++src" : "python";
+            editor.setOption("mode", mode);
+        });
+
+        function runCode() {
+            animateButton(event.target);
+            fetch('/run', {
+                method: 'POST',
+                body: JSON.stringify({ code: editor.getValue(), language: document.getElementById("language").value }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText = data.output;
+            });
+        }
+
+        function saveCode() {
+            animateButton(event.target);
+            let filename = prompt("Enter filename:", "untitled");
+            fetch('/save', {
+                method: 'POST',
+                body: JSON.stringify({ filename: filename, code: editor.getValue() }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message));
+        }
+
+        function loadCode() {
+            animateButton(event.target);
+            let filename = prompt("Enter filename to load:", "untitled");
+            fetch(`/load?filename=${filename}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) alert(data.error);
+                else editor.setValue(data.code);
+            });
+        }
+
+        function animateButton(button) {
+            button.style.transform = "scale(1.2)";
+            setTimeout(() => {
+                button.style.transform = "scale(1)";
+            }, 200);
+        }
+    </script>
+</body>
+</html>

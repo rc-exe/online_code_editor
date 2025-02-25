@@ -1,0 +1,19 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+pre {
+    background: #222;
+    color: white;
+    padding: 10px;
+    min-height: 50px;
+    text-align: left;
+}
