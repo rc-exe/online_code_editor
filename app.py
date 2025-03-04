@@ -24,6 +24,15 @@ def run_code():
             output = result.stdout + result.stderr
         except Exception as e:
             output = str(e)
+    
+    elif language == 'javascript':
+        try:
+            result = subprocess.run(['node', '-e', code], capture_output=True, text=True, timeout=5)
+            output = result.stdout + result.stderr
+        except Exception as e:
+            output = str(e)
+
+    
     else:
         output = "Execution not supported for this language."
     
