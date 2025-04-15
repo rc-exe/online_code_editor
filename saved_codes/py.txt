@@ -1,0 +1,7 @@
+# Welcome to Online Code Editor.
+# Write your code here and click Run to execute it.
+
+def hello_world():
+    print("Hello, World!")
+
+hello_world()

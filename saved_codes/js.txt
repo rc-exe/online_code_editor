@@ -1,1 +1,20 @@
-console.log("Hello, World!");
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Input Example</title>
+</head>
+<body>
+  <h2>Enter your name:</h2>
+  <input type="text" id="username" placeholder="Your name here">
+  <button onclick="displayInput()">Submit</button>
+
+  <p id="output"></p>
+
+  <script>
+    function displayInput() {
+      const name = document.getElementById("username").value;
+      document.getElementById("output").innerText = "Hello, " + name + "!";
+    }
+  </script>
+</body>
+</html>

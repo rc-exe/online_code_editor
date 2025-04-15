@@ -1,0 +1,20 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    string name;
+    int age;
+
+    // Ask for name
+    cout << "Enter your name: ";
+    getline(cin, name);  // Allows full name with spaces
+
+    // Ask for age
+    cout << "Enter your age: ";
+    cin >> age;
+
+    // Display output
+    cout << "\nHello, " << name << "! You are " << age << " years old." << endl;
+
+    return 0;
+}

@@ -4,136 +4,529 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Code Editor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 1.5rem;
+            gap: 1.5rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .editor-container, .io-container {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-container {
+            flex: 2;
+            min-width: 0;
+        }
+
+        .io-container {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        select {
+            background: var(--dark);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn {
+            background: var(--dark);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #0ea371;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #e69500;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            border-radius: 0.5rem;
+            font-size: 0.9375rem;
+            margin-bottom: 1rem;
+        }
+
+        .CodeMirror-focused {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        #input, #output {
+            width: 100%;
+            background: var(--dark);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9375rem;
+            resize: none;
+            transition: all 0.2s;
+        }
+
+        #input:focus, #output:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        #input {
+            min-height: 100px;
+            margin-bottom: 1rem;
+        }
+
+        #output {
+            min-height: 300px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        /* Loading animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <i class="fas fa-code logo-icon"></i>
+            <span>Online Code Editor</span>
+        </a>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Connected</span>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="editor-container">
+            <div class="panel-header">
+                <h2 class="panel-title">Editor</h2>
+                <div class="controls">
+                    <select id="language">
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="c">C</option>
+                        <option value="cpp">C++</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="runCode()" id="runBtn">
+                        <i class="fas fa-play"></i> Run
+                    </button>
+                    <button class="btn btn-success" onclick="saveCode()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="btn btn-warning" onclick="loadCode()">
+                        <i class="fas fa-folder-open"></i> Load
+                    </button>
+                </div>
+            </div>
+            <textarea id="code"># Welcome to Online Code Editor.
+# Write your code here and click Run to execute it.
+
+def hello_world():
+    print("Hello, World!")
+
+hello_world()</textarea>
+        </div>
+        
+        <div class="io-container">
+            <div class="panel-header">
+                <h2 class="panel-title">Input/Output</h2>
+            </div>
+            <label for="input">Program Input</label>
+            <textarea id="input" placeholder="Enter input for your program here..."></textarea>
+            <label for="output">Execution Output</label>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+            <p>© 2025 <a href="https://github.com/rc-exe" target="_blank">Ritesh Chakramani</a>. All rights reserved.</p>
+        </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
-    <style>
-        body {
-            background-image: url("{{ url_for('static', filename='coding-bg.jpg') }}");
-            background-size: cover;
-            background-position: center;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            background: rgba(0, 0, 0, 0.6);
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px;
-            transition: transform 0.2s ease, background 0.3s ease;
-        }
-        button:hover {
-            transform: scale(1.1);
-            background: #ff9800;
-            color: white;
-        }
-        button:active {
-            transform: scale(0.9);
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 14px;
-            opacity: 0.8;
-        }
-    </style>
-<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-
-</head>
-<body>
-    <h1>Online Code Editor</h1>
-    <select id="language">
-        <option value="python">Python</option>
-        <option value="javascript">JavaScript</option>
-    </select>
-    <textarea id="code" name="code"></textarea>
-    <br>
-    <button onclick="runCode()">Run</button>
-    <button onclick="saveCode()">Save</button>
-    <button onclick="loadCode()">Load</button>
-    <pre id="output"></pre>
-
+    
     <script>
-        var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        // Initialize CodeMirror editor
+        const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             lineNumbers: true,
             mode: "python",
-            theme: "monokai"
+            theme: "dracula",
+            indentUnit: 4,
+            tabSize: 4,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            extraKeys: {
+                "Ctrl-Enter": runCode,
+                "Cmd-Enter": runCode
+            }
         });
 
+        // Language mode mapping
+        const modeMap = {
+            'python': 'python',
+            'javascript': 'javascript',
+            'c': 'text/x-csrc',
+            'cpp': 'text/x-c++src'
+        };
+
+        // Handle language change
         document.getElementById("language").addEventListener("change", function() {
-            var mode = this.value === "javascript" ? "javascript" : this.value === "cpp" ? "text/x-c++src" : "python";
-            editor.setOption("mode", mode);
+            editor.setOption("mode", modeMap[this.value]);
         });
 
-        function runCode() {
-            animateButton(event.target);
-            fetch('/run', {
-                method: 'POST',
-                body: JSON.stringify({ code: editor.getValue(), language: document.getElementById("language").value }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("output").innerText = data.output;
-            });
+        // Run code function
+        async function runCode() {
+            const btn = document.getElementById("runBtn");
+            const originalContent = btn.innerHTML;
+            
+            // Update button state
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> Running...';
+            
+            try {
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        code: editor.getValue(),
+                        language: document.getElementById("language").value,
+                        input: document.getElementById("input").value
+                    })
+                });
+                
+                const data = await response.json();
+                const outputElement = document.getElementById("output");
+                
+                if (data.output) {
+                    outputElement.textContent = data.output;
+                    outputElement.style.color = "white";
+                } else {
+                    outputElement.textContent = "No output generated";
+                    outputElement.style.color = "var(--gray)";
+                }
+                
+                // Scroll to bottom of output
+                outputElement.scrollTop = outputElement.scrollHeight;
+            } catch (error) {
+                document.getElementById("output").textContent = "Error: " + error.message;
+                document.getElementById("output").style.color = "var(--danger)";
+            } finally {
+                // Restore button state
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
         }
 
-        function saveCode() {
-            animateButton(event.target);
-            let filename = prompt("Enter filename:", "untitled");
-            fetch('/save', {
-                method: 'POST',
-                body: JSON.stringify({ filename: filename, code: editor.getValue() }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => alert(data.message));
+        // Save code function
+        async function saveCode() {
+            const filename = prompt("Enter filename (without extension):");
+            if (filename) {
+                try {
+                    const response = await fetch('/save', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            filename: filename,
+                            code: editor.getValue()
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.message) {
+                        showNotification(data.message, 'success');
+                    } else if (data.error) {
+                        showNotification(data.error, 'error');
+                    }
+                } catch (error) {
+                    showNotification("Error saving file: " + error.message, 'error');
+                }
+            }
         }
 
-        function loadCode() {
-            animateButton(event.target);
-            let filename = prompt("Enter filename to load:", "untitled");
-            fetch(`/load?filename=${filename}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) alert(data.error);
-                else editor.setValue(data.code);
-            });
+        // Load code function
+        async function loadCode() {
+            const filename = prompt("Enter filename to load (without extension):");
+            if (filename) {
+                try {
+                    const response = await fetch(`/load?filename=${filename}`);
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showNotification(data.error, 'error');
+                    } else {
+                        editor.setValue(data.code);
+                        showNotification("File loaded successfully", 'success');
+                    }
+                } catch (error) {
+                    showNotification("Error loading file: " + error.message, 'error');
+                }
+            }
         }
 
-        function animateButton(button) {
-            button.style.transform = "scale(1.2)";
+        // Show notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
             setTimeout(() => {
-                button.style.transform = "scale(1)";
-            }, 200);
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
+
+        // Add notification styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                transform: translateY(100px);
+                opacity: 0;
+                animation: slideIn 0.3s forwards;
+            }
+            
+            .notification.success {
+                background: var(--success);
+            }
+            
+            .notification.error {
+                background: var(--danger);
+            }
+            
+            @keyframes slideIn {
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            .fade-out {
+                animation: fadeOut 0.3s forwards;
+            }
+            
+            @keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
-
-<style>
-    .footer {
-        margin-top: 30px;
-        font-size: 14px;
-        color: black;  /* Changed text color to black */
-        opacity: 0.8;
-        background: white; /* Optional: Adds contrast for better visibility */
-        padding: 10px;
-        border-radius: 5px;
-        display: inline-block;
-    }
-</style><footer class="footer">
-    © 2025 Ritesh Chakramani. All rights reserved.
-</footer>
-
 </body>
 </html>
