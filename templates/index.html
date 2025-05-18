@@ -20,7 +20,33 @@
             --danger: #ef4444;
             --warning: #f59e0b;
         }
+        html {
+    scroll-behavior: smooth;
+  }
 
+  /* Specific styles for the info container */
+  .info-content {
+    scroll-behavior: smooth;
+    overflow-y: auto;
+  }
+
+  /* Add scroll padding to account for sticky header */
+  .info-content h2[id],
+  .info-content h3[id] {
+    scroll-margin-top: 70px; /* Adjust based on your header height */
+    padding-top: 10px;
+  }
+
+  /* Sticky navigation styles */
+  .info-nav {
+    position: sticky;
+    top: 0;
+    background: var(--dark);
+    padding: 10px 0;
+    z-index: 10;
+    margin: -1.25rem -1.25rem 1rem -1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
         * {
             margin: 0;
             padding: 0;
@@ -71,7 +97,7 @@
             width: 100%;
         }
 
-        .editor-container, .io-container {
+        .editor-container, .io-container, .info-container {
             background: rgba(15, 23, 42, 0.6);
             border-radius: 0.75rem;
             padding: 1.25rem;
@@ -90,6 +116,22 @@
         .io-container {
             flex: 1;
             min-width: 0;
+        }
+
+        .info-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            z-index: 1000;
+        }
+
+        .info-container.active {
+            display: flex;
         }
 
         .panel-header {
@@ -178,6 +220,24 @@
 
         .btn-warning:hover {
             background: #e69500;
+        }
+
+        .btn-info {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-info:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-close {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-close:hover {
+            background: #dc2626;
         }
 
         .CodeMirror {
@@ -272,6 +332,87 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-dark);
         }
+
+        /* Info content styles */
+        .info-content {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 0.5rem;
+            scroll-behavior: smooth;
+            scroll-padding-top: 60px;
+        }
+
+        .info-content h2,
+        .info-content h3 {
+            scroll-margin-top: 60px;
+        }
+
+        .info-content h2 {
+            margin: 1rem 0 0.5rem;
+            color: var(--primary);
+            padding-top: 10px;
+        }
+
+        .info-content h3 {
+            margin: 0.75rem 0 0.5rem;
+            color: var(--gray);
+        }
+
+        .info-content p, .info-content ul {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .info-content ul {
+            padding-left: 1.5rem;
+        }
+
+        .info-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Navigation links for info sections */
+        .info-nav {
+            position: sticky;
+            top: 0;
+            background: var(--dark);
+            padding: 10px 0;
+            z-index: 10;
+            margin: -1.25rem -1.25rem 1rem -1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-nav a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .info-nav a:hover {
+            background: rgba(99, 102, 241, 0.1);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -280,9 +421,14 @@
             <i class="fas fa-code logo-icon"></i>
             <span>Online Code Editor</span>
         </a>
-        <div class="status-indicator">
-            <div class="status-dot"></div>
-            <span>Connected</span>
+        <div class="controls">
+            <button class="btn btn-info" onclick="showInfo()">
+                <i class="fas fa-info-circle"></i> About
+            </button>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Connected</span>
+            </div>
         </div>
     </nav>
 
@@ -325,6 +471,72 @@ hello_world()</textarea>
         </div>
     </div>
 
+    <div class="overlay" id="overlay"></div>
+
+    <div class="info-container" id="infoContainer">
+        <div class="info-content">
+            <div class="panel-header">
+                <h2 class="panel-title">About Online Code Editor</h2>
+                <button class="btn btn-close" onclick="hideInfo()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            
+            <div class="info-nav">
+                <a href="#about">About</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#features">Features</a>
+                <a href="#limitations">Limitations</a>
+                <a href="#languages">Languages</a>
+            </div>
+            
+            <h2 id="about">About</h2>
+            <p>This Online Code Editor is a web-based development environment that allows you to write, run, and save code in multiple programming languages directly in your browser. It's designed to provide a quick and easy way to test code snippets, experiment with different languages, and learn programming concepts.</p>
+            
+            <h2 id="how-it-works">How It Works</h2>
+            <h3 id="features">Editor Features</h3>
+            <ul>
+                <li><strong>Syntax Highlighting:</strong> Code is color-coded based on the selected language for better readability.</li>
+                <li><strong>Line Numbers:</strong> Easily navigate your code with visible line numbers.</li>
+                <li><strong>Auto-Indentation:</strong> The editor automatically maintains proper indentation.</li>
+                <li><strong>Bracket Matching:</strong> Matching brackets are highlighted to help with code structure.</li>
+                <li><strong>Keyboard Shortcuts:</strong> Use Ctrl+Enter (Cmd+Enter on Mac) to quickly run your code.</li>
+            </ul>
+            
+            <h3>Execution Process</h3>
+            <ol>
+                <li>When you click "Run", your code is sent to a server for execution.</li>
+                <li>The server compiles/interpretes the code based on the selected language.</li>
+                <li>The output (or errors) are sent back and displayed in the output panel.</li>
+                <li>The execution happens in a sandboxed environment for security.</li>
+            </ol>
+            
+            <h3>File Management</h3>
+            <ul>
+                <li><strong>Save:</strong> Store your code on the server with a custom filename.</li>
+                <li><strong>Load:</strong> Retrieve previously saved code by filename.</li>
+            </ul>
+            
+            <h2 id="limitations">Limitations</h2>
+            <ul>
+                <li><strong>Execution Time:</strong> Code execution is limited to a few seconds to prevent server overload.</li>
+                <li><strong>Resource Usage:</strong> Programs with high memory or CPU usage may be terminated.</li>
+                <li><strong>File System Access:</strong> The editor has no access to your local file system - all file operations are server-side.</li>
+                <li><strong>Network Access:</strong> Code cannot make external network requests for security reasons.</li>
+                <li><strong>Browser Support:</strong> Some features may not work perfectly on older browsers.</li>
+                <li><strong>Language Support:</strong> Only basic features of each language are supported - some advanced libraries may not be available.</li>
+            </ul>
+            
+            <h2 id="languages">Supported Languages</h2>
+            <ul>
+                <li><strong>Python:</strong> Standard Python 3.x interpreter</li>
+                <li><strong>JavaScript:</strong> Node.js runtime environment</li>
+                <li><strong>C:</strong> GCC compiler</li>
+                <li><strong>C++:</strong> G++ compiler</li>
+            </ul>
+        </div>
+    </div>
+
     <footer class="footer">
         <p>© 2025 <a href="https://github.com/rc-exe" target="_blank">Ritesh Chakramani</a>. All rights reserved.</p>
     </footer>
@@ -362,6 +574,23 @@ hello_world()</textarea>
         document.getElementById("language").addEventListener("change", function() {
             editor.setOption("mode", modeMap[this.value]);
         });
+
+        // Show info modal
+        function showInfo() {
+            document.getElementById('infoContainer').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Hide info modal
+        function hideInfo() {
+            document.getElementById('infoContainer').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('overlay').addEventListener('click', hideInfo);
 
         // Run code function
         async function runCode() {
