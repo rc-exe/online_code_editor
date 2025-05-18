@@ -1,20 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>User Input Example</title>
-</head>
-<body>
-  <h2>Enter your name:</h2>
-  <input type="text" id="username" placeholder="Your name here">
-  <button onclick="displayInput()">Submit</button>
+// Ask for user's name and age
+let name = prompt("Enter your name:");
+let age = prompt("Enter your age:");
 
-  <p id="output"></p>
+// Convert age to number
+age = parseInt(age);
 
-  <script>
-    function displayInput() {
-      const name = document.getElementById("username").value;
-      document.getElementById("output").innerText = "Hello, " + name + "!";
-    }
-  </script>
-</body>
-</html>
+// Display message
+alert(`Hello, ${name}! You are ${age} years old.`);
+
+// Check voting eligibility
+if (age >= 18) {
+  alert("You are eligible to vote.");
+} else {
+  alert("You are not eligible to vote yet.");
+}

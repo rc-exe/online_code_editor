@@ -1,7 +1,15 @@
-# Welcome to Online Code Editor.
-# Write your code here and click Run to execute it.
+# Ask for user input
+name = input("Enter your name: ")
+age = input("Enter your age: ")
 
-def hello_world():
-    print("Hello, World!")
+# Convert age to integer
+age = int(age)
 
-hello_world()
+# Print a personalized message
+print(f"Hello, {name}! You are {age} years old.")
+
+# Check if the user is eligible to vote
+if age >= 18:
+    print("You are eligible to vote.")
+else:
+    print("You are not eligible to vote yet.")
