@@ -191,7 +191,7 @@
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
         }
 
-        #input, #output {
+        #output {
             width: 100%;
             background: var(--dark);
             color: white;
@@ -202,24 +202,16 @@
             font-size: 0.9375rem;
             resize: none;
             transition: all 0.2s;
-        }
-
-        #input:focus, #output:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
-        }
-
-        #input {
-            min-height: 100px;
-            margin-bottom: 1rem;
-        }
-
-        #output {
-            min-height: 300px;
+            min-height: 400px;
             white-space: pre-wrap;
             overflow-y: auto;
             flex: 1;
+        }
+
+        #output:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
         }
 
         .footer {
@@ -324,27 +316,24 @@ def hello_world():
 
 hello_world()</textarea>
         </div>
-        
+
         <div class="io-container">
             <div class="panel-header">
-                <h2 class="panel-title">Input/Output</h2>
+                <h2 class="panel-title">Output</h2>
             </div>
-            <label for="input">Program Input</label>
-            <textarea id="input" placeholder="Enter input for your program here..."></textarea>
-            <label for="output">Execution Output</label>
             <div id="output"></div>
         </div>
     </div>
 
     <footer class="footer">
-            <p>© 2025 <a href="https://github.com/rc-exe" target="_blank">Ritesh Chakramani</a>. All rights reserved.</p>
-        </footer>
+        <p>© 2025 <a href="https://github.com/rc-exe" target="_blank">Ritesh Chakramani</a>. All rights reserved.</p>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
-    
+
     <script>
         // Initialize CodeMirror editor
         const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -389,8 +378,7 @@ hello_world()</textarea>
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         code: editor.getValue(),
-                        language: document.getElementById("language").value,
-                        input: document.getElementById("input").value
+                        language: document.getElementById("language").value
                     })
                 });
                 
